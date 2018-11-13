@@ -44,6 +44,24 @@ public class PersistantSettings : MonoBehaviour {
         chosenWpn.num = 2;
         SceneManager.LoadScene("trainingFacility");
     }
+    public void Button4()
+    {
+        chosenWpn = new wpnClass(weaponList[3]);
+        chosenWpn.num = 3;
+        SceneManager.LoadScene("trainingFacility");
+    }
+    public void Button5()
+    {
+        chosenWpn = new wpnClass(weaponList[4]);
+        chosenWpn.num = 4;
+        SceneManager.LoadScene("trainingFacility");
+    }
+    public void Button6()
+    {
+        chosenWpn = new wpnClass(weaponList[5]);
+        chosenWpn.num = 5;
+        SceneManager.LoadScene("trainingFacility");
+    }
 
 
 }

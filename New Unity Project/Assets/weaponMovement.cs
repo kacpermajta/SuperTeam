@@ -8,15 +8,18 @@ public class weaponMovement : MonoBehaviour {
     public input thisInput;
     public multiSetup thisMulti;
     public GameObject effect;
+    public int ammo;
 //    public ParticleSystem gunfire;
-    public int cooldown;
+    public int cooldown, repeatable,damage;
  //   ParticleSystem.EmissionModule emiter;
-    bool prevR;
+    bool prevR, prewStrike;
     // Use this for initialization
     void Start () {
  //       emiter = gunfire.emission;
         cooldown = 0;
         prevR = false;
+        Physics.IgnoreLayerCollision(8,10);
+        
     }
 	
 	// Update is called once per frame
@@ -49,16 +52,42 @@ public class weaponMovement : MonoBehaviour {
                         thisMulti.CmdTurn(false);
                     }
                 }
-                break;
+                if (cooldown==0 && thisInput.attackR)
+                {
+                    Ray ray = new Ray(transform.position, transform.forward);
+                    RaycastHit stream;
+                    
+                    if (Physics.Raycast(ray, out stream, 30,9))
+                    {
+                        if (stream.collider.gameObject.tag != "nonexist")
+                        {
+                            GameObject hitInstance = Instantiate(effect, stream.point, Quaternion.identity);
+                            Destroy(hitInstance, 3);
+
+                            try
+                            {
+
+                                stream.collider.gameObject.SendMessage("strike", damage, SendMessageOptions.DontRequireReceiver);
+                                cooldown = 1;
+                            }
+                            catch
+                            {
+
+                            }
+                        }
+                    }
+                     
+                }
+                    break;
 
             case wpnType.rifle:
                 if (thisInput.attackR)
                     if (cooldown == 0)
                     {
 //                        Debug.Log("pew");
-                        thisMulti.CmdSpawn(0, transform.position, transform.rotation);
+                        thisMulti.CmdSpawnMissile(ammo, damage, transform.position, transform.rotation);
 
-                        cooldown = 20;
+                        cooldown = repeatable;
                     }
                 break;
             case wpnType.pistol:
@@ -66,9 +95,28 @@ public class weaponMovement : MonoBehaviour {
                     if (cooldown == 0)
                     {
  //                       Debug.Log("pew");
-                        thisMulti.CmdSpawn(0, transform.position, transform.rotation);
+                        thisMulti.CmdSpawnMissile(ammo, damage, transform.position, transform.rotation);
 
-                        cooldown = 60;
+                        cooldown = repeatable;
+                    }
+                break;
+            case wpnType.sword:
+                if (prewStrike == true && (cooldown<=0 || cooldown< repeatable-40))
+                {
+                    thisMulti.CmdTurn(false);
+                    prewStrike = false;
+                }
+
+
+                if (thisInput.attackR)
+                    if (cooldown == 0)
+                    {
+                        //                       Debug.Log("pew");
+                        GameObject AOEObject = Instantiate(effect, transform);
+                        AOEObject.GetComponent<AOEAttack>().dmg = damage;
+                        thisMulti.CmdTurn(true);
+                        prewStrike = true;
+                        cooldown = repeatable;
                     }
                 break;
 

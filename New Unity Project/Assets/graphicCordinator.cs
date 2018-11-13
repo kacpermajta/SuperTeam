@@ -6,15 +6,23 @@ public class graphicCordinator : MonoBehaviour {
     [SerializeField]
     ParticleSystem GeneralParticles;
      ParticleSystem.EmissionModule[] Particles;
+//    parti
 
     // Use this for initialization
     void Start () {
-        Particles = new ParticleSystem.EmissionModule[2] ;
-        Particles[0] = GeneralParticles.emission;
-        Particles[1] = GeneralParticles.transform.GetChild(0).GetComponent<ParticleSystem>().emission;
-        Particles[0].enabled = false;
-        Particles[1].enabled = false;
-
+        if (GeneralParticles != null)
+        {
+            Particles = new ParticleSystem.EmissionModule[2];
+            Particles[0] = GeneralParticles.emission;
+            Particles[0].enabled = false;
+            try
+            {
+                Particles[1] = GeneralParticles.transform.GetChild(0).GetComponent<ParticleSystem>().emission;
+                Particles[1].enabled = false;
+            }
+            catch
+            { }
+        }
     }
 
     // Update is called once per frame
@@ -24,6 +32,13 @@ public class graphicCordinator : MonoBehaviour {
     public void Turn(bool value)
     {
         Particles[0].enabled = value;
-        Particles[1].enabled = value;
+        try
+        {
+            Particles[1].enabled = value;
+        }
+        catch
+        {
+        }
+        
     }
 }

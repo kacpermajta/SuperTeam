@@ -292,9 +292,11 @@ MonoBehaviour:
   type: 4
   thisInput: {fileID: 0}
   thisMulti: {fileID: 0}
-  effect: {fileID: 1477601707445440, guid: 70e547817689b834d9b4e3b6dcb64a52, type: 2}
-  gunfire: {fileID: 198840547484081550}
+  effect: {fileID: 1604794564034234, guid: cdfcc68d7c6ff7d45a7feeb6c4920813, type: 2}
+  ammo: 0
   cooldown: 0
+  repeatable: 0
+  damage: 1
 --- !u!114 &114624117991543010
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -4879,7 +4881,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startSpeed:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 100
       minScalar: 5
       maxCurve:
@@ -4934,7 +4936,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 1, g: 0.24056602, b: 0.24056602, a: 0.015686275}
+      maxColor: {r: 0.44892398, g: 1, b: 0.23921567, a: 0.7921569}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -5894,8 +5896,8 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 1, g: 0, b: 0.009897232, a: 1}
-        key1: {r: 1, g: 0, b: 0.46787453, a: 1}
+        key0: {r: 0.08334541, g: 1, b: 0, a: 1}
+        key1: {r: 0.077782035, g: 1, b: 0, a: 1}
         key2: {r: 0.9843137, g: 0.53333336, b: 0.23921569, a: 1}
         key3: {r: 0.6627451, g: 0.43529412, b: 1, a: 0}
         key4: {r: 0.5137255, g: 0.6392157, b: 1, a: 0}
@@ -9232,7 +9234,7 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 1
   m_RenderingLayerMask: 4294967295
   m_Materials:
-  - {fileID: 2100000, guid: 89ff19d667a6a5d4bb76df1fcb718402, type: 2}
+  - {fileID: 2100000, guid: ff6663d927968dc4482d24a8495316de, type: 2}
   - {fileID: 2100000, guid: ff6663d927968dc4482d24a8495316de, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0

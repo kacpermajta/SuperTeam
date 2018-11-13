@@ -157,5 +157,7 @@ MonoBehaviour:
   thisInput: {fileID: 0}
   thisMulti: {fileID: 0}
   effect: {fileID: 1477601707445440, guid: 70e547817689b834d9b4e3b6dcb64a52, type: 2}
-  gunfire: {fileID: 0}
+  ammo: 0
   cooldown: 0
+  repeatable: 20
+  damage: 5

@@ -1,10 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class hitboxManager : MonoBehaviour {
+public class hitboxManager : NetworkBehaviour {
 
-    public characterController motherScript;
+    public multiSetup motherScript;
+    
 	// Use this for initialization
 	void Start () {
 		
@@ -16,6 +18,10 @@ public class hitboxManager : MonoBehaviour {
 	}
     public void strike(int dmg)
     {
-        motherScript.strike(dmg);
+        
+        motherScript.Cmdstrike(dmg);
+        
+
+
     }
 }

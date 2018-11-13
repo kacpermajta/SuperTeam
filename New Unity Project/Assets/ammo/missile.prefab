@@ -211,3 +211,4 @@ MonoBehaviour:
   thisBody: {fileID: 54875828761571498}
   hitParticle: {fileID: 1604794564034234, guid: cdfcc68d7c6ff7d45a7feeb6c4920813,
     type: 2}
+  dmg: 0
