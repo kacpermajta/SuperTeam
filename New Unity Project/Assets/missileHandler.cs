@@ -8,10 +8,11 @@ public class missileHandler : NetworkBehaviour {
     public Rigidbody thisBody;
     public GameObject hitParticle;
     public int dmg;
+    public int owner;//team for now, player in future
 	// Use this for initialization
 	void Start () {
-        
-        thisBody.AddRelativeForce(0, 0, 2000);
+        if (isServer)
+            thisBody.AddRelativeForce(0, 0, 2000);
 		
 	}
 	
@@ -36,7 +37,7 @@ public class missileHandler : NetworkBehaviour {
                 try
                 {
                     Debug.Log("ready");
-                    other.GetComponent<hitboxManager>().strike(dmg);
+                    other.GetComponent<hitboxManager>().strike(dmg, owner);
 
                 }
                 catch

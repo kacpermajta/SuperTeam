@@ -6,6 +6,7 @@ public class graphicCordinator : MonoBehaviour {
     [SerializeField]
     ParticleSystem GeneralParticles;
      ParticleSystem.EmissionModule[] Particles;
+    ParticleSystem.ShapeModule[] Shapes;
 //    parti
 
     // Use this for initialization
@@ -14,7 +15,15 @@ public class graphicCordinator : MonoBehaviour {
         {
             Particles = new ParticleSystem.EmissionModule[2];
             Particles[0] = GeneralParticles.emission;
-            Particles[0].enabled = false;
+            try
+            {
+                Shapes[0] = GeneralParticles.shape;
+            }
+            catch
+            {
+
+            }
+                Particles[0].enabled = false;
             try
             {
                 Particles[1] = GeneralParticles.transform.GetChild(0).GetComponent<ParticleSystem>().emission;
@@ -29,6 +38,18 @@ public class graphicCordinator : MonoBehaviour {
     void Update () {
 		
 	}
+
+    public void Aim (Vector3 target)
+    {
+        if(Shapes[0].enabled==true)
+        {
+
+            Shapes[0].length = Vector3.Distance(transform.position, target);
+            transform.LookAt(target);
+
+        }
+    }
+
     public void Turn(bool value)
     {
         Particles[0].enabled = value;

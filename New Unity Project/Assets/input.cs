@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class input : MonoBehaviour {
-    public bool front, back, left, right, up, down, aimR, attackR, grab;
+    public bool front, back, left, right, up, down, aimR, attackR, grab, escape;
     public float turn, rise;
     public float prevX, prevY;
     public int agentType; //0- human 1- dummy 2-turret 3-bot
@@ -45,6 +45,7 @@ public class input : MonoBehaviour {
                 grab = Input.GetKey("f");
                 aimR = Input.GetKey("e");
                 attackR = Input.GetKey(KeyCode.Mouse0);
+                escape = Input.GetKey(KeyCode.Escape);
                 break;
         }
     }

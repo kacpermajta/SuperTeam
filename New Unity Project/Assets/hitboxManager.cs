@@ -16,12 +16,16 @@ public class hitboxManager : NetworkBehaviour {
 	void Update () {
 		
 	}
-    public void strike(int dmg)
+    public void strike(int dmg, int team)
     {
         
-        motherScript.Cmdstrike(dmg);
+        motherScript.Cmdstrike(dmg, team);
         
 
 
+    }
+    public int getId()
+    {
+        return (motherScript.RemnetId);
     }
 }

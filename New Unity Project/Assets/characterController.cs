@@ -5,6 +5,7 @@ using UnityEngine;
 public class characterController : MonoBehaviour
 {
     public input thisInput;
+    public multiSetup thisMulti;
  //   public weaponMovement[] weaponScript;
     public collisionCheck grounded;
     public collisionCheck climb;
@@ -31,7 +32,11 @@ public class characterController : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-       
+       if(thisInput.escape)
+        {
+            PersistantSettings.menu();
+            thisMulti.CmdLeaveServer();
+        }
     }
     void FixedUpdate()
     {

@@ -8,21 +8,25 @@ public class multiSetup : NetworkBehaviour {
 
     [SerializeField]
     Behaviour[] localComponents;
+    [SerializeField]
+    graphicCordinator[] weaponGraph;
 
-    
+    public SpriteRenderer teamTag; 
+
     Camera sceneCamera;
 
     public GameObject[] missileList;
+
     GameObject weaponModel;
-    [SerializeField]
-    graphicCordinator[] weaponGraph;
-    public int RemnetId, weaponNum;
+
+    public int RemnetId, weaponNum,teamNum;
     int health;
     public Text healthbar;
+    bool alive;
     // Use this for initialization
     void Start () {
-        RemnetId = int.Parse(GetComponent<NetworkIdentity>().netId.ToString()); 
-
+        RemnetId = int.Parse(GetComponent<NetworkIdentity>().netId.ToString());
+        //generalMultiplayer.PlayerList.Add(RemnetId, this);
         if (!isLocalPlayer)
         {
             for (int i = 0; i < localComponents.Length; i++)
@@ -34,7 +38,7 @@ public class multiSetup : NetworkBehaviour {
         else
         {
 
-            CmdSpawnWpn(PersistantSettings.chosenWpn.num, GetComponent<NetworkIdentity>());
+            CmdSpawnChar(PersistantSettings.chosenWpn.num,PersistantSettings.teamNum, GetComponent<NetworkIdentity>());
 
             sceneCamera = Camera.main;
             if (sceneCamera != null)
@@ -44,6 +48,8 @@ public class multiSetup : NetworkBehaviour {
         }
         health = 34;
         healthbar.text = health.ToString();
+        alive = true;
+
     }
 	
 	// Update is called once per frame
@@ -52,6 +58,7 @@ public class multiSetup : NetworkBehaviour {
 
 		
 	}
+
     private void OnDisable()
     {
         if(sceneCamera!=null)
@@ -59,10 +66,18 @@ public class multiSetup : NetworkBehaviour {
             sceneCamera.gameObject.SetActive(true);
         }
     }
-
+    private void OnPlayerDisconnected(NetworkPlayer player)
+    {
+        Debug.Log("bye bye" + RemnetId.ToString());
+    }
 
     [Command]
+    public void CmdLeaveServer()
+    {
+        Debug.Log("bye bye" + RemnetId.ToString());
 
+    }
+    [Command]
     public void CmdSpawn(int effect, Vector3 position, Quaternion rotation)
     {
         //Debug.Log("yup");
@@ -77,42 +92,58 @@ public class multiSetup : NetworkBehaviour {
     {
         //Debug.Log("yup");
         GameObject missile = Instantiate(missileList[effect], position, rotation);
-        missile.GetComponent<missileHandler>().dmg = dmg;
+        missileHandler misScript = missile.GetComponent<missileHandler>();
+        misScript.dmg = dmg;
+        misScript.owner = teamNum;
+
         NetworkServer.Spawn(missile);
 
 
     }
     [Command]
 
-    public void CmdSpawnWpn(int num, NetworkIdentity target)
+    public void CmdSpawnChar(int wpnum, int teamnum, NetworkIdentity target)
     {
-        weaponNum = num;
+        
+        weaponNum = wpnum;
+        teamNum = teamnum;
         Debug.Log("nadal gracz: " + RemnetId);
         //        SpawnOtherWpn(RemnetId, num);
-        foreach (multiSetup sinPlayer in generalMultiplayer.PlayerList)
+        foreach (KeyValuePair<int, multiSetup> sinPlayer in generalMultiplayer.PlayerList)
         {
-            sinPlayer.TargetSpawnEachOtherWpn(target.connectionToClient, sinPlayer.weaponNum);//0 do zmiany
+            sinPlayer.Value.TargetSpawnEachOtherChar(target.connectionToClient, sinPlayer.Value.weaponNum,sinPlayer.Value.teamNum);//
         }
-        RpcSpawnOtherWpn(num);
-        
-        generalMultiplayer.PlayerList.Add(this);
+        TargetDisplayScore(target.connectionToClient, generalMultiplayer.scores);
+        RpcSpawnOtherChar(wpnum,teamnum);
+
+        generalMultiplayer.PlayerList.Add(RemnetId, this);
 
     }
     [TargetRpc]
-    public void TargetSpawnEachOtherWpn(NetworkConnection thisConnection, int targetWpn)
+    public void TargetSpawnEachOtherChar(NetworkConnection thisConnection, int targetWpn, int targetTm)
     {
         SpawnOtherWpn(targetWpn);
-
+        SetOtherTeam(targetTm);
 
     }
 
 
     [ClientRpc]
-    public void RpcSpawnOtherWpn(int num)
+    public void RpcSpawnOtherChar(int wpnum, int tmnum)
     {
-        SpawnOtherWpn(num);
+        SpawnOtherWpn(wpnum);
+        SetOtherTeam(tmnum);
 
 
+    }
+
+
+    public void SetOtherTeam(int num)
+    {
+        teamTag.material = PersistantSettings.teamTags[num];
+        teamTag.transform.localPosition = new Vector3(0, -0.989f, 0);
+        teamTag.transform.localRotation = Quaternion.Euler(90f, 0, 0);
+        return;
     }
     public GameObject SpawnOtherWpn(int num)
     {
@@ -163,15 +194,42 @@ public class multiSetup : NetworkBehaviour {
         weaponGraph[0].Turn(value);
     }
 
+
     [Command]
-    public void Cmdstrike(int damage)
+    public void CmdstrikeById(int damage,int ID)
+    {
+
+        generalMultiplayer.PlayerList[ID].Cmdstrike(damage, teamNum);
+        
+
+    }
+    [ClientRpc]
+    public void RpcAddFrag(int team)
+    {
+        Debug.Log(team);
+        generalMultiplayer.scores[team]++;
+        generalMultiplayer.scoreboard[team].text = generalMultiplayer.scores[team].ToString();
+    }
+    [TargetRpc]
+    public void TargetDisplayScore(NetworkConnection thisConnection, int[] serverScore)
+    {
+        generalMultiplayer.scores=serverScore;
+        for (int i = 0; i < 4; i++)
+        {
+            generalMultiplayer.scoreboard[i].text = generalMultiplayer.scores[i].ToString();
+        }
+    }
+
+    [Command]
+    public void Cmdstrike(int damage, int team)
     {
         Debug.Log("set");
         health -= damage;
-        if (health <= 0)
+        if (alive && health <= 0)
         {
             die();
-
+            
+            RpcAddFrag(team);
         }
         else
         {
@@ -183,16 +241,78 @@ public class multiSetup : NetworkBehaviour {
     public void die()
     {
         Debug.Log("gone");
- //       rawModel.parent = null;
-        Destroy(gameObject);
+        alive = false;
+        //       rawModel.parent = null;
+        RpcL4D();
+        StartCoroutine(Respawn());
+
 
     }
+
+    [ClientRpc]
+    public void RpcL4D()//called when player killed, disables everything
+    {
+        foreach (Transform child in transform)
+        {
+            child.gameObject.SetActive(false);
+        }
+        if (isLocalPlayer)
+        {
+            if (sceneCamera != null)
+                sceneCamera.gameObject.SetActive(true);
+        }
+    }
+    [ClientRpc]
+    public void RpcRsPlay(Vector3 point)//called when player respawns, reenables everything
+    {
+        transform.position = point;
+        foreach (Transform child in transform)
+        {
+            child.gameObject.SetActive(true);
+
+        }
+        if(isLocalPlayer)
+        {
+            if (sceneCamera != null)
+                sceneCamera.gameObject.SetActive(false);
+        }
+            
+    }
+
     [ClientRpc]
     public void RpcHpDisplay(int value)
     {
         healthbar.text = value.ToString();
     }
 
+
+
+    IEnumerator Respawn()
+    {
+       
+        yield return new WaitForSeconds(5);
+
+        // Set the spawn point to origin as a default value
+        Vector3 spawnPoint = Vector3.zero;
+
+        // If there is a spawn point array and the array is not empty, pick a spawn point at random
+        if (generalMultiplayer.spawnPoints != null && generalMultiplayer.spawnPoints.Length > 0)
+        {
+            spawnPoint = generalMultiplayer.spawnPoints[Random.Range(0, generalMultiplayer.spawnPoints.Length)].transform.position;
+        }
+
+        // Set the player’s position to the chosen spawn point
+        transform.position = spawnPoint;
+
+
+
+        RpcRsPlay(spawnPoint);
+        health = 34;
+        alive = true;
+        RpcHpDisplay(health);
+
+
+    }
 
 
 

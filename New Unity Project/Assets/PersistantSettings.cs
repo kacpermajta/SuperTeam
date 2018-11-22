@@ -7,26 +7,38 @@ public class PersistantSettings : MonoBehaviour {
 
     [SerializeField]
     GameObject[] weaponListNS;
-
     public static GameObject[] weaponList;
-    
+
+    [SerializeField]
+    Material[] teamTagsNS;
+    public static Material[] teamTags;
+
     public static wpnClass chosenWpn;
     public static GameObject settingObj;
+    public static int teamNum;
+
 
 	// Use this for initialization
 	void Start () {
         weaponList = weaponListNS;
+        teamTags = teamTagsNS;
         DontDestroyOnLoad (transform.gameObject);
         settingObj = gameObject;
-
+        teamNum = 1;
         
 	}
 	
 	// Update is called once per frame
 	void Update () {
+
+
 		
 	}
-    public void Button1()
+    public static void menu()
+    {
+        SceneManager.LoadScene("menu");
+    }
+    public  void Button1()
     {
         chosenWpn = new wpnClass(weaponList[0]);
         chosenWpn.num = 0;
@@ -61,6 +73,28 @@ public class PersistantSettings : MonoBehaviour {
         chosenWpn = new wpnClass(weaponList[5]);
         chosenWpn.num = 5;
         SceneManager.LoadScene("trainingFacility");
+    }
+    public void Button7()
+    {
+        chosenWpn = new wpnClass(weaponList[6]);
+        chosenWpn.num = 6;
+        SceneManager.LoadScene("trainingFacility");
+    }
+    public void GoTeam1()
+    {
+        teamNum = 0;
+    }
+    public void GoTeam2()
+    {
+        teamNum = 1;
+    }
+    public void GoTeam3()
+    {
+        teamNum = 2;
+    }
+    public void GoTeam4()
+    {
+        teamNum = 3;
     }
 
 

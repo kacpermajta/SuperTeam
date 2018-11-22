@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class weaponMovement : MonoBehaviour {
-    public enum wpnType {rifle, pistol, sword, punch, ray, flame};
+    public enum wpnType {rifle, pistol, sword, punch, ray, flame, stream};
     public wpnType type;
     public input thisInput;
     public multiSetup thisMulti;
@@ -67,7 +67,9 @@ public class weaponMovement : MonoBehaviour {
                             try
                             {
 
-                                stream.collider.gameObject.SendMessage("strike", damage, SendMessageOptions.DontRequireReceiver);
+                                int target = stream.collider.gameObject.GetComponent<hitboxManager>().getId();
+                                //stream.collider.gameObject.SendMessage("getId",  SendMessageOptions.DontRequireReceiver, out target,);
+                                thisMulti.CmdstrikeById(damage, target);
                                 cooldown = 1;
                             }
                             catch
@@ -79,6 +81,52 @@ public class weaponMovement : MonoBehaviour {
                      
                 }
                     break;
+
+            case wpnType.stream:
+                if (prevR != thisInput.attackR)
+                {
+                    Debug.Log("current value: " + thisInput.attackR + ", prev: " + prevR);
+                    if (thisInput.attackR)
+                    {
+                        //                       thisMulti.CmdEnableParticle(0, transform.position, transform.rotation);
+                        thisMulti.CmdTurn(true);
+                    }
+                    else
+                    {
+                        //                       thisMulti.CmdDisableParticle(0, transform.position, transform.rotation);
+                        thisMulti.CmdTurn(false);
+                    }
+                }
+                if (cooldown == 0 && thisInput.attackR)
+                {
+                    Ray ray = new Ray(transform.position, transform.forward);
+                    RaycastHit stream;
+
+                    if (Physics.Raycast(ray, out stream, 30, 9))
+                    {
+                        if (stream.collider.gameObject.tag != "nonexist")
+                        {
+                            GameObject hitInstance = Instantiate(effect, stream.point, Quaternion.identity);
+                            Destroy(hitInstance, 3);
+
+                            try
+                            {
+
+                                int target = stream.collider.gameObject.GetComponent<hitboxManager>().getId();
+                                //stream.collider.gameObject.SendMessage("getId",  SendMessageOptions.DontRequireReceiver, out target,);
+                                thisMulti.CmdstrikeById(damage, target);
+                                cooldown = 1;
+                            }
+                            catch
+                            {
+
+                            }
+                        }
+                    }
+
+                }
+                break;
+
 
             case wpnType.rifle:
                 if (thisInput.attackR)
@@ -113,7 +161,9 @@ public class weaponMovement : MonoBehaviour {
                     {
                         //                       Debug.Log("pew");
                         GameObject AOEObject = Instantiate(effect, transform);
-                        AOEObject.GetComponent<AOEAttack>().dmg = damage;
+                        AOEObject.GetComponent<AOEAttack>().damage = damage;
+                        AOEObject.GetComponent<AOEAttack>().thisMulti = thisMulti;
+
                         thisMulti.CmdTurn(true);
                         prewStrike = true;
                         cooldown = repeatable;
@@ -135,7 +185,7 @@ public class weaponMovement : MonoBehaviour {
 
     }
 
-    public void strike()
+    public void strikePlayer()
     {
         switch (type)
         {
